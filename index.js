@@ -1,7 +1,7 @@
 let canvas
 let ctx
 
-let cameraOffset = { x: window.innerWidth/2, y: window.innerHeight/2 }
+let cameraOffset = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 let cameraZoom = 0.03
 let MAX_ZOOM = 150
 let MIN_ZOOM = 0.001
@@ -35,27 +35,20 @@ function inCameraView(x1, y1, x2, y2) {
     return (x1 >= cameraView[0] && x2 <= cameraView[2]) && (y1 >= cameraView[1] && y2 <= cameraView[3])
 }
 
-function drawRect(x, y, width, height)
-{
+function drawRect(x, y, width, height) {
     ctx.fillRect(x, y, width, height)
 }
 
-function drawText(text, x, y, size, font)
-{
+function drawText(text, x, y, size, font) {
     ctx.font = `${size}px ${font}`
     ctx.fillText(text, x, y)
 }
 
-const menger_offsets = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
+// const menger_offsets = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
 
 const images = [
     // me first :)
     'hb.png',
-
-    // "streamers / influencers"
-    // 'belle.jpg',
-    // 'mia.jpg',
-    // 'sasha.webp',
 
     // friends
     'beans.jpg',
@@ -93,11 +86,10 @@ const images = [
     and 8 squares around it are 1/3rd x 1/3rd
     then 1/9th x 1/9th etc...
 
-    indices are represented in base 8 and using menger_offsets as lookup table for square location
+    indices should be represented in base 8 and using menger_offsets as lookup table for square location
 */
-function drawMenger_internal(x, y, size, limit, depth=2) {
-    // TODO: get camera view and only render if square is in view...
-    if (depth >= limit || depth*depth > cameraZoom * 450) {
+function drawMenger_internal(x, y, size, limit, depth = 2) {
+    if (depth >= limit || depth * depth > cameraZoom * 450) {
         return
     }
 
@@ -108,13 +100,10 @@ function drawMenger_internal(x, y, size, limit, depth=2) {
     // center square
     let color = (depth * 20).toString(16)
     ctx.fillStyle = `#${color}${color}${color}`
-    // if (depth == 0)
-    // console.log(`#${color}${color}${color}`)
-    // debugger
-    
+
     drawRect(x - offset, y - offset, size, size)
 
-    if (depth*depth < cameraZoom * 200 && inCameraView(x - next_offset, y - next_offset, x + next_offset, y + next_offset)) {
+    if (depth * depth < cameraZoom * 200 && inCameraView(x - next_offset, y - next_offset, x + next_offset, y + next_offset)) {
         let img_id = Math.abs(((x * y + x) / 1000 + depth) | 0) % (images.length + 38)
         let img = document.getElementById('img_' + img_id)
         if (img)
@@ -134,9 +123,9 @@ function drawMenger_internal(x, y, size, limit, depth=2) {
     }
 }
 
-function drawMenger(size, limit, depth=0) {
+function drawMenger(size, limit, depth = 0) {
     // const offset = -size / 3
-    
+
     // first draw entire square
     ctx.fillStyle = "#000000"
     drawRect(-size / 2, -size / 2, size, size)
@@ -144,8 +133,7 @@ function drawMenger(size, limit, depth=0) {
     drawMenger_internal(0, 0, size, limit, depth)
 }
 
-function draw()
-{
+function draw() {
     setupView()
 
     const size = 30000
@@ -172,21 +160,18 @@ function draw()
     
     drawText("Wow, you found me!", -260, -2000, 48, "courier")
     */
-    
-    requestAnimationFrame( draw )
+
+    requestAnimationFrame(draw)
 }
 
 // Gets the relevant location from a mouse or single touch event
-function getEventLocation(e, offset)
-{
+function getEventLocation(e, offset) {
     let x, y
-    if (e.touches && e.touches.length == 1)
-    {
+    if (e.touches && e.touches.length == 1) {
         x = e.touches[0].clientX
         y = e.touches[0].clientY
     }
-    else if (e.clientX && e.clientY)
-    {
+    else if (e.clientX && e.clientY) {
         x = e.clientX
         y = e.clientY
     }
@@ -198,22 +183,17 @@ let isDragging = false
 let dragStartLoc = { x: 0, y: 0 }
 let dragStartCamera = { x: 0, y: 0 }
 
-function onPointerDown(e)
-{
+function onPointerDown(e) {
     isDragging = true
     dragStartLoc = getEventLocation(e, cameraOffset)
     dragStartCamera = cameraOffset
 }
 
-function onPointerUp(e)
-{
+function onPointerUp(e) {
     let loc = getEventLocation(e, dragStartCamera)
     if (loc.x == dragStartLoc.x && loc.y == dragStartLoc.y) {
         loc = getEventLocation(e, dragStartCamera)
-        
-        // console.log(e.clientX, e.clientY)
-        // console.log((e.clientX - hw) / cameraZoom - cameraOffset.x)
-        console.log('clicked:', loc.x, loc.y)
+        // console.log('clicked:', loc.x, loc.y)
     }
 
     isDragging = false
@@ -221,26 +201,20 @@ function onPointerUp(e)
     lastZoom = cameraZoom
 }
 
-function onPointerMove(e)
-{
-    if (isDragging)
-    {
+function onPointerMove(e) {
+    if (isDragging) {
         cameraOffset = getEventLocation(e, dragStartLoc)
-        
-        // console.log(cameraOffset)
     }
 
+    // this prevents scrolling (panning) on mobile
     e.preventDefault()
 }
 
-function handleTouch(e, singleTouchHandler)
-{
-    if ( e.touches.length == 1 )
-    {
+function handleTouch(e, singleTouchHandler) {
+    if (e.touches.length == 1) {
         singleTouchHandler(e)
     }
-    else if (e.type == "touchmove" && e.touches.length == 2)
-    {
+    else if (e.type == "touchmove" && e.touches.length == 2) {
         isDragging = false
         handlePinch(e)
     }
@@ -249,43 +223,35 @@ function handleTouch(e, singleTouchHandler)
 let initialPinchDistance = null
 let lastZoom = cameraZoom
 
-function handlePinch(e)
-{
+function handlePinch(e) {
     e.preventDefault()
-    
+
     let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }
     let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY }
-    
+
     // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
-    let currentDistance = (touch1.x - touch2.x)**2 + (touch1.y - touch2.y)**2
-    
-    if (initialPinchDistance == null)
-    {
+    let currentDistance = (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2
+
+    if (initialPinchDistance == null) {
         initialPinchDistance = currentDistance
     }
-    else
-    {
-        adjustZoom( null, currentDistance/initialPinchDistance )
+    else {
+        adjustZoom(null, currentDistance / initialPinchDistance)
     }
 }
 
-function adjustZoom(zoomAmount, zoomFactor)
-{
-    if (!isDragging)
-    {
-        if (zoomAmount)
-        {
+function adjustZoom(zoomAmount, zoomFactor) {
+    if (!isDragging) {
+        if (zoomAmount) {
             cameraZoom += zoomAmount
         }
-        else if (zoomFactor)
-        {
-            // console.log(zoomFactor)
-            cameraZoom = zoomFactor*lastZoom
+        else if (zoomFactor) {
+            cameraZoom = zoomFactor * lastZoom
         }
-        
-        cameraZoom = Math.min( cameraZoom, MAX_ZOOM )
-        cameraZoom = Math.max( cameraZoom, MIN_ZOOM )
-        
+
+        cameraZoom = Math.min(cameraZoom, MAX_ZOOM)
+        cameraZoom = Math.max(cameraZoom, MIN_ZOOM)
+
         // console.log(zoomAmount)
     }
 }
@@ -300,22 +266,22 @@ function loadImages() {
 }
 
 function onLoad() {
-  canvas = document.getElementById("canvas")
-  ctx = canvas.getContext('2d')
+    canvas = document.getElementById("canvas")
+    ctx = canvas.getContext('2d')
 
-  loadImages()
-  
-  canvas.addEventListener('mousedown', onPointerDown)
-  canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
-  canvas.addEventListener('mouseup', onPointerUp)
-  canvas.addEventListener('touchend',  (e) => handleTouch(e, onPointerUp))
-  canvas.addEventListener('mousemove', onPointerMove)
-  canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
-  canvas.addEventListener('wheel', (e) => adjustZoom(e.deltaY*cameraZoom*SCROLL_SENSITIVITY))
-  canvas.addEventListener('resize', (e) => resizeCanvas())
+    loadImages()
 
-  // Ready, set, go
-  draw()
+    canvas.addEventListener('mousedown', onPointerDown)
+    canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
+    canvas.addEventListener('mouseup', onPointerUp)
+    canvas.addEventListener('touchend', (e) => handleTouch(e, onPointerUp))
+    canvas.addEventListener('mousemove', onPointerMove)
+    canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
+    canvas.addEventListener('wheel', (e) => adjustZoom(e.deltaY * cameraZoom * SCROLL_SENSITIVITY))
+    canvas.addEventListener('resize', (e) => resizeCanvas())
+
+    // Ready, set, go
+    draw()
 }
 
 window.addEventListener('load', onLoad)
