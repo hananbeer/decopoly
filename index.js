@@ -233,14 +233,14 @@ function drawMenger_internal(x, y, size, limit, depth = 2) {
         if (img) {
             drawClippedImage(img, x, y, next_size, limit - depth + 2)
         } else {
-            if (!has_drawn) {
+            // if (!has_drawn) {
                 // debugger
                 // center square
                 let color = (depth * 20).toString(16)
                 ctx.fillStyle = `#${color}${color}${color}`
             
-                drawRect(x - offset/1.1, y - offset/1.1, size/1.1, size/1.1)
-            }
+                drawRect(x - next_offset/1.1, y - next_offset/1.1, next_size/1.1, next_size/1.1)
+            // }
         }
         has_drawn = true
             // ctx.drawImage(img, x - next_offset, y - next_offset, next_size, next_size)
